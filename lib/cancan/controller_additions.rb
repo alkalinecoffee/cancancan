@@ -118,6 +118,7 @@ module CanCan
       #   Passing +true+ will use prepend_before_filter instead of a normal before_filter.
       #
       def load_resource(*args)
+        puts "CC: loading resource"
         cancan_resource_class.add_before_filter(self, :load_resource, *args)
       end
 

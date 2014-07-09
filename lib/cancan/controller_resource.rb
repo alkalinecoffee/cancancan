@@ -29,11 +29,14 @@ module CanCan
     def load_resource
       unless skip?(:load)
         if load_instance?
+          puts "CC: loading resource"
           self.resource_instance ||= load_resource_instance
         elsif load_collection?
           self.collection_instance ||= load_collection
         end
       end
+
+      puts "CC: resource loaded: #{self.resource_instance}"
     end
 
     def authorize_resource
@@ -62,9 +65,16 @@ module CanCan
     protected
 
     def load_resource_instance
+      puts "CC: loading resource instance"
+      puts "CC: new actions: #{new_actions}"
+      puts "CC: params action: #{@params[:action]}"
+      puts "CC: id_param: #{id_param}"
+
       if !parent? && new_actions.include?(@params[:action].to_sym)
+        puts "CC: building resource!"
         build_resource
       elsif id_param || @options[:singleton]
+        puts "CC: finding resource!"
         find_resource
       end
     end
@@ -101,7 +111,7 @@ module CanCan
     end
 
     def find_resource
-      if @options[:singleton] && parent_resource.respond_to?(name)
+      val = if @options[:singleton] && parent_resource.respond_to?(name)
         parent_resource.send(name)
       else
         if @options[:find_by]
@@ -116,6 +126,9 @@ module CanCan
           adapter.find(resource_base, id_param)
         end
       end
+
+      puts "CC: we've looked for a resource, and found: #{val.inspect}"
+      val
     end
 
     def adapter
