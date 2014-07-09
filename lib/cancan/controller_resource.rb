@@ -27,16 +27,21 @@ module CanCan
     end
 
     def load_resource
+      Rails.logger.debug "CC: self: #{self}"
+      Rails.logger.debug "CC: self: #{self.resource_instance}"
+      Rails.logger.debug "CC: about to load resource..."
+      Rails.logger.debug "CC: skip load? #{skip?(:load)}"
+
       unless skip?(:load)
         if load_instance?
-          puts "CC: loading resource"
+          Rails.logger.debug "CC: loading resource"
           self.resource_instance ||= load_resource_instance
         elsif load_collection?
           self.collection_instance ||= load_collection
         end
       end
 
-      puts "CC: resource loaded: #{self.resource_instance}"
+      Rails.logger.debug "CC: resource loaded: #{self.resource_instance}"
     end
 
     def authorize_resource
@@ -46,6 +51,12 @@ module CanCan
     end
 
     def parent?
+      Rails.logger.debug "CC: checking if there is a parent..."
+      Rails.logger.debug "CC: value of @name: #{@name}"
+      Rails.logger.debug "CC: options: #{@options.inspect}"
+      Rails.logger.debug "CC: options has key: #{@options.has_key?(:parent)}"
+      Rails.logger.debug "CC: name retrieved from controller: #{name_from_controller.to_sym}"
+
       @options.has_key?(:parent) ? @options[:parent] : @name && @name != name_from_controller.to_sym
     end
 
@@ -65,16 +76,9 @@ module CanCan
     protected
 
     def load_resource_instance
-      puts "CC: loading resource instance"
-      puts "CC: new actions: #{new_actions}"
-      puts "CC: params action: #{@params[:action]}"
-      puts "CC: id_param: #{id_param}"
-
       if !parent? && new_actions.include?(@params[:action].to_sym)
-        puts "CC: building resource!"
         build_resource
       elsif id_param || @options[:singleton]
-        puts "CC: finding resource!"
         find_resource
       end
     end
@@ -111,7 +115,7 @@ module CanCan
     end
 
     def find_resource
-      val = if @options[:singleton] && parent_resource.respond_to?(name)
+      if @options[:singleton] && parent_resource.respond_to?(name)
         parent_resource.send(name)
       else
         if @options[:find_by]
@@ -126,9 +130,6 @@ module CanCan
           adapter.find(resource_base, id_param)
         end
       end
-
-      puts "CC: we've looked for a resource, and found: #{val.inspect}"
-      val
     end
 
     def adapter
