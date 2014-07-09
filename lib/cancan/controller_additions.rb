@@ -118,9 +118,6 @@ module CanCan
       #   Passing +true+ will use prepend_before_filter instead of a normal before_filter.
       #
       def load_resource(*args)
-        Rails.logger.debug "CC: controller self: #{self}"
-        Rails.logger.debug "CC: loading resource with args: #{args}"
-        Rails.logger.debug "CC: cancan_resource_class: #{cancan_resource_class}"
         cancan_resource_class.add_before_filter(self, :load_resource, *args)
       end
 

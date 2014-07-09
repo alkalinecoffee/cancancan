@@ -28,7 +28,7 @@ module CanCan
 
     def load_resource
       Rails.logger.debug "CC: self: #{self}"
-      Rails.logger.debug "CC: self: #{self.resource_instance}"
+      Rails.logger.debug "CC: self resource_instance: #{self.resource_instance}"
       Rails.logger.debug "CC: about to load resource..."
       Rails.logger.debug "CC: skip load? #{skip?(:load)}"
 
