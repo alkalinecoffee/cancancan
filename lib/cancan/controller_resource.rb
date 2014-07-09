@@ -54,7 +54,7 @@ module CanCan
       Rails.logger.debug "CC: checking if there is a parent..."
       Rails.logger.debug "CC: value of @name: #{@name}"
       Rails.logger.debug "CC: options: #{@options.inspect}"
-      Rails.logger.debug "CC: options has key: #{@options.has_key?(:parent)}"
+      Rails.logger.debug "CC: options has :parent key: #{@options.has_key?(:parent)}"
       Rails.logger.debug "CC: name retrieved from controller: #{name_from_controller.to_sym}"
 
       @options.has_key?(:parent) ? @options[:parent] : @name && @name != name_from_controller.to_sym
