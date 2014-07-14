@@ -3,8 +3,7 @@ module CanCan
   class InheritedResource < ControllerResource # :nodoc:
     def load_resource_instance
       Rails.logger.debug "CC: loading resource instance"
-      Rails.logger.debug "CC: new actions: #{new_actions}"
-      Rails.logger.debug "CC: params action: #{@params[:action]}"
+      Rails.logger.debug "CC: new actions: #{@params}"
       Rails.logger.debug "CC: id_param: #{id_param}"
       Rails.logger.debug "CC: controller association_chain: #{@controller.send(:association_chain)}"
 
@@ -17,6 +16,7 @@ module CanCan
         resource = @controller.send :build_resource
         assign_attributes(resource)
       else
+        Rails.logger.debug "CC: sending resource to controller"
         @controller.send :resource
       end
     end

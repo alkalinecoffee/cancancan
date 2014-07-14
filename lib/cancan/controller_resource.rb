@@ -29,8 +29,6 @@ module CanCan
     def load_resource
       Rails.logger.debug "CC: self: #{self}"
       Rails.logger.debug "CC: self resource_instance: #{self.resource_instance}"
-      Rails.logger.debug "CC: about to load resource..."
-      Rails.logger.debug "CC: skip load? #{skip?(:load)}"
 
       unless skip?(:load)
         if load_instance?
@@ -51,12 +49,6 @@ module CanCan
     end
 
     def parent?
-      Rails.logger.debug "CC: checking if there is a parent..."
-      Rails.logger.debug "CC: value of @name: #{@name}"
-      Rails.logger.debug "CC: options: #{@options.inspect}"
-      Rails.logger.debug "CC: options has :parent key: #{@options.has_key?(:parent)}"
-      Rails.logger.debug "CC: name retrieved from controller: #{name_from_controller.to_sym}"
-
       @options.has_key?(:parent) ? @options[:parent] : @name && @name != name_from_controller.to_sym
     end
 
@@ -92,6 +84,9 @@ module CanCan
     end
 
     def load_collection
+      Rails.logger.debug "CC: loading collection..."
+      Rails.logger.debug "CC: using accessible_by with current_ability: #{current_ability}"
+      Rails.logger.debug "CC: authorization_action: #{authorization_action}"
       resource_base.accessible_by(current_ability, authorization_action)
     end
 
@@ -115,21 +110,34 @@ module CanCan
     end
 
     def find_resource
-      if @options[:singleton] && parent_resource.respond_to?(name)
+      Rails.logger.debug "CC: finding resource..."
+      Rails.logger.debug "CC: resource base: #{resource_base}"
+      Rails.logger.debug "CC: finder options: #{@options}"
+
+      val = if @options[:singleton] && parent_resource.respond_to?(name)
+        Rails.logger.debug "CC: in singleton finder"
         parent_resource.send(name)
       else
         if @options[:find_by]
+          Rails.logger.debug "CC: finding by..."
           if resource_base.respond_to? "find_by_#{@options[:find_by]}!"
+            Rails.logger.debug "CC: long method name"
             resource_base.send("find_by_#{@options[:find_by]}!", id_param)
           elsif resource_base.respond_to? "find_by"
+            Rails.logger.debug "CC: find_by with custom finder method with id: #{id_param}"
             resource_base.send("find_by", { @options[:find_by].to_sym => id_param })
           else
+            Rails.logger.debug "CC: simple find_by"
             resource_base.send(@options[:find_by], id_param)
           end
         else
+          Rails.logger.debug "CC: finding by adapter"
+          Rails.logger.debug "CC: adapter: #{adapter}"
           adapter.find(resource_base, id_param)
         end
       end
+
+      Rails.logger.debug "CC: found resource: #{val.inspect}"
     end
 
     def adapter
